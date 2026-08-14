@@ -3,7 +3,8 @@
     "@hotwired/stimulus": "^3.2.2"
   },
   "scripts": {
-    "build": "esbuild ./src/js/main.js --bundle --outfile=./public/js/out.js"
+    "build": "esbuild ./src/js/main.js --bundle --outfile=./public/js/out.js",
+    "dev": "npm run build && php -S localhost:8000 -t public"
   },
   "devDependencies": {
     "esbuild": "0.28.2"
