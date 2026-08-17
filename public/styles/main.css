@@ -1,0 +1,26 @@
+@import "./layout.css";
+@import "typography.css";
+
+@import "./sections/teaser.css";
+
+:root {
+    --max-content-width: 1248px;
+    --color-bg: #001e00;
+    --color-text: #fff2db;
+    --color-primary: red;
+}
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text)
+}
+
+
+/* css reset */
+body {
+    padding: 0;
+    margin: 0;
+}
+* {
+    box-sizing: border-box;
+}

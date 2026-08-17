@@ -1,0 +1,21 @@
+.teaser {
+    background-image: url("../../assets/teaser.jpeg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    min-height: 70vh;
+
+    position: relative;
+    isolation: isolate;
+    > .inner {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+
+        padding: 2rem 8rem 2rem 2rem;
+        background-color: var(--color-bg);
+        border: rgb(255, 255, 255, .33) 1px solid;
+        border-bottom: none;
+        border-left: none;
+    }
+}
