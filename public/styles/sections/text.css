@@ -1,0 +1,17 @@
+.text-section {
+
+}
+
+.text-left,
+.text-right {
+    > .inner {
+        max-width: 50%
+    }
+}
+
+
+.text-right {
+    > .inner {
+        margin-inline-end: 0;
+    }
+}

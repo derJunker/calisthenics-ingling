@@ -2,17 +2,35 @@
 @import "typography.css";
 
 @import "./sections/teaser.css";
+@import "./sections/text.css";
 
 :root {
-    --max-content-width: 1248px;
+    --max-content-width: 1512px;
     --color-bg: #001e00;
-    --color-text: #fff2db;
+    --color-text: #fffef0;
     --color-primary: red;
 }
 
 body {
-    background-color: var(--color-bg);
-    color: var(--color-text)
+    min-height: 100dvh;
+    color: var(--color-text);
+}
+.bg,
+.bg-cnt::before {
+    position: fixed;
+    inset: 0;
+    content: "";
+}
+
+.bg-cnt::before {
+    background: rgb(0,0,0, .33);
+    z-index: -1;
+}
+
+.bg {
+    z-index: -2;
+    width: 100%;
+    height: 100%;
 }
 
 
