@@ -5,13 +5,16 @@
 .text-left,
 .text-right {
     > .inner {
-        max-width: 50%
     }
 }
 
 
 .text-right {
     > .inner {
-        margin-inline-end: 0;
+        display: flex;
+        justify-content: end;
+        .txt {
+            max-width: 50%
+        }
     }
 }
