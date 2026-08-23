@@ -2,19 +2,12 @@
 
 }
 
-.text-left,
-.text-right {
-    > .inner {
-    }
-}
-
-
 .text-right {
     > .inner {
         display: flex;
         justify-content: end;
         .txt {
-            max-width: 50%
+            max-width: 50%;
         }
     }
 }

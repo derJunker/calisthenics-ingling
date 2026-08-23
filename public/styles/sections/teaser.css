@@ -1,16 +1,14 @@
 .teaser {
-    min-height: 100dvh;
     > .inner {
         display: grid;
         justify-items: start;
         align-items: end;
         height: 100%;
         h1 {
-            font-size: clamp(6dvw, 10rem, 15dvw);
+            font-size: clamp(6dvw, 10rem, 12dvw);
             text-transform: uppercase;
             line-height: 1;
             text-align: start;
-            padding-bottom: 3rem;
         }
     }
 }

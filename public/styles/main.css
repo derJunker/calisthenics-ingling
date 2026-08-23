@@ -1,5 +1,6 @@
 @import "./layout.css";
 @import "typography.css";
+@import "./glass.css";
 
 @import "./sections/teaser.css";
 @import "./sections/text.css";

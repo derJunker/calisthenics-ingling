@@ -5,3 +5,24 @@ section {
         padding-inline: 1rem;
     }
 }
+
+.scroll-section {
+    min-height: 100dvh;
+    > .inner {
+        display: grid;
+        justify-items: start;
+        align-items: end;
+        height: 100%;
+        padding-bottom: 3rem;
+    }
+}
+
+
+html {
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+}
+
+.scroll-section {
+    scroll-snap-align: start;
+}
