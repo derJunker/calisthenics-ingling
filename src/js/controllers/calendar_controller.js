@@ -113,7 +113,7 @@ export default class extends Controller {
             this.fetchJSON(WEATHER_URL),
         ]);
 
-        if (calendar) {
+        if (calendar?.days) {
             this.hourRange = calendar.hours || FALLBACK_HOURS;
             this.equipment = calendar.equipment || [];
             this.days = calendar.days || [];
@@ -126,7 +126,7 @@ export default class extends Controller {
         (weather?.days || []).forEach((day) => this.weather.set(day.date, day));
 
         this.selectedDate = this.days[0].date;
-        this.setStatus(calendar ? "" : "Termine sind gerade nicht erreichbar.");
+        this.setStatus(calendar?.days ? "" : "Termine sind gerade nicht erreichbar.");
     }
 
     emptyWeek() {
@@ -139,11 +139,16 @@ export default class extends Controller {
         });
     }
 
+    /* an error response still carries a readable reason ("die Stunde
+       ist voll", "zu viele Änderungen") — hand it back so submit()
+       can show it instead of a generic failure */
     async fetchJSON(url, options) {
         try {
             const response = await fetch(url, options);
-            if (!response.ok) return null;
-            return await response.json();
+            const data = await response.json();
+
+            if (!response.ok) return data?.error ? data : null;
+            return data;
         } catch {
             return null;
         }
@@ -439,12 +444,11 @@ export default class extends Controller {
     async submit() {
         if (!this.selectedHours.size) return;
 
-        const previous = this.mine[this.selectedDate];
         const entry = {
             date: this.selectedDate,
             hours: [...this.selectedHours].sort((a, b) => a - b),
             equipment: [...this.selectedEquipment],
-            token: previous?.token || this.token(),
+            token: this.mine[this.selectedDate]?.token || this.token(),
         };
 
         this.submitTarget.disabled = true;
@@ -465,11 +469,7 @@ export default class extends Controller {
         this.mine[this.selectedDate] = { ...entry, token: result.token || entry.token };
         this.writeStore();
 
-        /* the mock backend forgets the entry, so mirror it locally to
-           keep the grid honest about what was just announced */
-        this.applyLocally(previous, entry);
-        this.keepRail(() => this.render());
-
+        await this.refresh();
         this.setStatus("Eingetragen. Bis dann!", "ok");
     }
 
@@ -488,14 +488,13 @@ export default class extends Controller {
             return;
         }
 
-        this.applyLocally(entry, null);
         delete this.mine[this.selectedDate];
         this.writeStore();
 
         this.selectedHours = new Set();
         this.selectedEquipment = new Set();
 
-        this.keepRail(() => this.render());
+        await this.refresh();
         this.setStatus("Eintrag gelöscht.", "ok");
     }
 
@@ -508,30 +507,14 @@ export default class extends Controller {
         this.updateNav();
     }
 
-    /* move this browser's own contribution from `previous` to `next` */
-    applyLocally(previous, next) {
-        (previous?.hours || []).forEach((hour) => this.contribute(previous.date, hour, previous.equipment, -1));
-        (next?.hours || []).forEach((hour) => this.contribute(next.date, hour, next.equipment, 1));
-    }
+    /* the counts come back from the server after every write — the
+       endpoint aggregates, so this browser's own entry is already in
+       them and nothing has to be mirrored locally */
+    async refresh() {
+        const calendar = await this.fetchJSON(CALENDAR_URL);
+        if (!calendar?.days?.length) return;
 
-    contribute(date, hour, equipment, delta) {
-        const day = this.days.find((entry) => entry.date === date);
-        if (!day) return;
-
-        let slot = day.slots.find((entry) => entry.hour === hour);
-
-        if (!slot) {
-            if (delta < 0) return;
-            slot = { hour, people: 0, equipment: [] };
-            day.slots.push(slot);
-        }
-
-        slot.people = Math.max(0, slot.people + delta);
-
-        if (delta > 0) {
-            slot.equipment = [...new Set([...slot.equipment, ...(equipment || [])])];
-        } else if (slot.people === 0) {
-            day.slots = day.slots.filter((entry) => entry !== slot);
-        }
+        this.days = calendar.days;
+        this.keepRail(() => this.render());
     }
 }

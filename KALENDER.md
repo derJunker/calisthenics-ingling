@@ -2,42 +2,47 @@
 
 The calendar section (`#kalender`) is complete on the front end: markup in
 `public/index.html`, behaviour in `src/js/controllers/calendar_controller.js`,
-styling in `public/styles/sections/calendar.css`. Both endpoints it talks to
-are **mocks** — they answer in the right shape, but nothing is stored and no
-real forecast is fetched. Everything below is what turning that into the real
-thing still needs.
+styling in `public/styles/sections/calendar.css`. Beide Endpoints sind
+inzwischen echt: der Kalender speichert in `calendar_entries`, das Wetter
+holt und cacht den Forecast. Was noch fehlt, steht unten — im
+Wesentlichen das Einrichten auf dem Server, der Equipment-Katalog und
+die beiden Rechtstexte.
 
 ## 1. Backend — `public/api/calendar.php`
 
-Currently: `read()` fabricates bookings from the day of the year (`mockDay()`),
-`POST` validates and throws the result away, `DELETE` always answers `ok`.
+**Erledigt.** Der Endpoint schreibt und liest echt, Tabelle
+`calendar_entries` (siehe `schema.sql`): eine Zeile pro angekündigter
+Stunde, `(date, hour, token, equipment, created_at)`, unique über
+`(date, hour, token)`, Index auf `date` und `(token, date)`. Keine
+Spalte identifiziert eine Person.
 
-- [ ] **Storage.** One row per announced hour, e.g.
-      `(id, date DATE, hour TINYINT, token CHAR(32), equipment JSON/…)`. No
-      column that identifies a person — see §4. Index on `date` (read path) and
-      on `(token, date)` (delete path).
-- [ ] **Upsert instead of insert.** `announce()` gets a `token`; re-submitting
-      the same day from the same browser must *replace* that browser's rows for
-      the day, not add to them. Without this the counts inflate every time
-      somebody changes their mind. The frontend already sends the stored token
-      back and labels the button "Eintrag aktualisieren" in that case.
-- [ ] **Real delete.** `DELETE` must remove exactly the rows carrying that
-      `(date, token)` pair and report `ok: false` when nothing matched, so the
-      UI can stop claiming success.
-- [ ] **Aggregate on read.** Hand out `{hour, people, equipment[]}` per day, as
-      the mock does — never the individual rows. The equipment list per hour is
-      the distinct union, so a single visitor can't be picked out of it.
-- [ ] **Abuse limit.** Nothing stops one browser from minting new tokens and
-      inflating a slot. A per-slot cap (say 30 people/hour) plus a short-lived
-      per-token submit limit keeps this in check without storing an IP. If a
-      rate limit per origin is needed, keep it in memory (APCu/Redis with a
-      minutes-long TTL), never in the database.
-- [ ] **Timezone.** Both endpoints use PHP's default TZ while the browser uses
-      the visitor's local date. On a server running UTC the seven-day window
-      can be off by a day in the evening. Add
-      `date_default_timezone_set('Europe/Berlin');` to both files.
-- [ ] Drop `mockDay()` and the `MOCK_PATTERN` fixtures once the real read path
-      is in.
+- **Upsert.** Eine erneute Anmeldung desselben Tokens für denselben Tag
+  löscht dessen Zeilen und schreibt neu, beides in einer Transaktion —
+  die Zahlen wachsen also nicht mit jeder Änderung mit.
+- **Delete.** `DELETE` trifft genau `(date, token)` und antwortet
+  `ok: false`, wenn nichts getroffen wurde.
+- **Aggregiert gelesen.** `{hour, people, equipment[]}` pro Tag;
+  `people` zählt Tokens, das Equipment ist die Vereinigung der Stunde,
+  in der Reihenfolge des Katalogs. Einzelzeilen verlassen den Server nie.
+- **Missbrauch.** `SLOT_CAP = 30` Personen pro Stunde (geprüft ohne die
+  eigenen Zeilen, danach `409`), dazu eine Schreibbremse pro Token in
+  APCu (`RATE_LIMIT = 20` pro `RATE_WINDOW = 600 s`, danach `429`) —
+  im Arbeitsspeicher, nie in der DB, ohne APCu entfällt sie.
+- **Aufräumen.** `sweep()` löscht bei im Schnitt jedem 20. GET alles mit
+  `date < heute` (`RETENTION_CHANCE`).
+- **Timezone.** `date_default_timezone_set('Europe/Berlin')` steht drin.
+- **Ohne DB** antworten alle drei Methoden `503` mit Klartext-Grund
+  statt einer leeren Woche, die fälschlich „frei" behauptet. Der
+  Controller zeigt dann „Termine sind gerade nicht erreichbar."
+- `mockDay()` und die Fixtures sind weg.
+
+Geprüft gegen SQLite über HTTP: Upsert ersetzt statt zu addieren,
+doppeltes Löschen meldet `ok: false`, unbekannte Equipment-ids und
+Uhrzeiten außerhalb `6..22` fallen raus, ein Datum außerhalb der sieben
+Tage ergibt `422`, ein Token, das nicht wie eines aussieht (inklusive
+SQL-Versuch), bekommt einfach ein neues, der 31. Besucher einer Stunde
+`409`, und eine untergeschobene Zeile von vorgestern verschwindet durch
+den Sweep.
 
 ## 2. Weather — `public/api/weather.php`
 
@@ -83,7 +88,8 @@ Einrichten:
 
 - [ ] `cp config.local.php.example "config.local.$(openssl rand -hex 4).php"`
       und ausfüllen.
-- [ ] `schema.sql` einspielen (`mysql -u USER -p DBNAME < schema.sql`).
+- [ ] `schema.sql` einspielen (`mysql -u USER -p DBNAME < schema.sql`) —
+      enthält jetzt `weather_cache` **und** `calendar_entries`.
 - [ ] Einmal `https://…/api/config.local.<zufall>.php` aufrufen: muss 403
       liefern (Apache mit .htaccess) oder eine leere Seite (PHP läuft) —
       auf keinen Fall den Dateiinhalt.
@@ -92,11 +98,12 @@ Einrichten:
 
 ## 3. Frontend — `src/js/controllers/calendar_controller.js`
 
-- [ ] **Re-fetch instead of the optimistic merge.** `applyLocally()` /
-      `contribute()` mirror your own submission into the local data because the
-      mock forgets it. Once the backend persists, replace that with a `GET`
-      after a successful `POST`/`DELETE` (keeping `keepRail()` so the rail does
-      not jump). The merge helpers can then go.
+- [x] **Re-fetch statt optimistischem Merge.** `submit()` und `remove()`
+      holen nach einer erfolgreichen Antwort die Woche neu (`refresh()`,
+      innerhalb von `keepRail()`); `applyLocally()`/`contribute()` sind
+      weg. `fetchJSON()` reicht jetzt auch den Fehlertext einer
+      abgelehnten Antwort durch, damit „die Stunde ist voll" und „zu
+      viele Änderungen" sichtbar werden statt einer Allgemeinfloskel.
 - [ ] **Staleness.** Data is fetched once on `connect()`. Somebody who leaves
       the page open all evening sees yesterday's counts. Re-fetch when the tab
       becomes visible again (`visibilitychange`), and possibly on a slow poll
@@ -121,10 +128,9 @@ code:
       links are currently dead. Impressum is required (§5 DDG), the
       Datenschutzerklärung must describe the calendar entries, the retention
       period, the weather call and the hoster.
-- [ ] **Retention.** A daily job (cron or a probabilistic sweep on read) that
-      deletes every row whose `date` is in the past. Without it the table
-      slowly becomes a movement history, which is exactly what the design
-      avoids.
+- [x] **Retention.** Erledigt im Endpoint (`sweep()`, siehe §1). Ein
+      zusätzlicher Cron (`DELETE FROM calendar_entries WHERE date <
+      CURDATE()`) schadet nicht, ist aber nicht nötig.
 - [ ] **Server logs.** The web server's access log holds IPs by default.
       Shorten the retention or anonymise the last octet; note the choice in the
       Datenschutzerklärung.
