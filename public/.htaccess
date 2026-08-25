@@ -1,0 +1,13 @@
+# Saubere URLs für die Rechtstexte: /impressum und /datenschutz liefern
+# die jeweilige .html-Datei aus. Ohne diese Regel greift auf Apache ein
+# 404, und der PHP-Entwicklungsserver (php -S) liefert stattdessen
+# stumm die Startseite aus — beides unschön für Pflichtangaben.
+#
+# Verlinkt wird trotzdem mit .html-Endung (siehe index.html), damit die
+# Links auch ohne mod_rewrite und im lokalen Dev-Server funktionieren.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^impressum/?$   /impressum.html   [L]
+    RewriteRule ^datenschutz/?$ /datenschutz.html [L]
+</IfModule>

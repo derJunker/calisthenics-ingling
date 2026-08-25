@@ -15,6 +15,15 @@ return [
     'user' => 'calisthenics',
     'pass' => '',
 
+    /* Schlüssel für den Aufräum-Endpoint (cleanup.php), wenn der Cron
+       ihn über HTTP aufruft statt über die PHP-CLI. Leer lassen, wenn
+       der Cron `php cleanup.php` direkt ausführt — dann ist der Weg
+       über HTTP komplett zu. Erzeugen mit:
+
+           openssl rand -hex 24
+
+       'cleanup_key' => '', */
+
     /* SQLite tut es genauso. Die Datenbankdatei dann NICHT hier
        ablegen — eine .sqlite im Webroot wird im Zweifel ausgeliefert:
        'dsn' => 'sqlite:' . sys_get_temp_dir() . '/calisthenics.sqlite',

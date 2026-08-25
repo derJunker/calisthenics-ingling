@@ -51,6 +51,15 @@ const GEAR_SHOWN = 2;
 /* the hour the rail opens on when the selected day is not today */
 const DEFAULT_HOUR = 16;
 
+/* how often an open tab re-reads the counts while the section is on
+   screen — somebody who leaves the page open all evening should not
+   see the numbers from when they arrived */
+const POLL_INTERVAL = 120_000;
+
+/* how many placeholder boxes stand in for the rail until the first
+   response arrives */
+const SKELETON_HOURS = 6;
+
 const iso = (date) => `${date.getFullYear()}-`
     + `${String(date.getMonth() + 1).padStart(2, "0")}-`
     + `${String(date.getDate()).padStart(2, "0")}`;
@@ -86,15 +95,35 @@ export default class extends Controller {
         this.mine = this.readStore();
 
         this.selectedDate = iso(new Date());
+        this.syncing = false;
+
+        this.renderSkeleton();
         this.setStatus("Daten werden geladen …");
 
         this.onResize = () => this.updateNav();
         window.addEventListener("resize", this.onResize);
 
+        /* coming back to the tab is the moment stale counts are most
+           likely and most visible */
+        this.onVisibility = () => {
+            if (document.visibilityState === "visible") this.sync();
+        };
+        document.addEventListener("visibilitychange", this.onVisibility);
+
+        /* the slow poll only runs while the section is actually on
+           screen — a tab parked on another part of the page asks for
+           nothing */
+        this.observer = new IntersectionObserver(([entry]) => {
+            entry.isIntersecting ? this.startPoll() : this.stopPoll();
+        });
+        this.observer.observe(this.element);
+
         await this.load();
 
         /* connect() may outlive the element on a hot reload */
         if (!this.element.isConnected) return;
+
+        this.selectedDate = this.days[0].date;
 
         this.renderEquipment();
         this.render();
@@ -103,6 +132,9 @@ export default class extends Controller {
 
     disconnect() {
         window.removeEventListener("resize", this.onResize);
+        document.removeEventListener("visibilitychange", this.onVisibility);
+        this.observer?.disconnect();
+        this.stopPoll();
     }
 
     /* ---------- data ---------- */
@@ -125,7 +157,6 @@ export default class extends Controller {
 
         (weather?.days || []).forEach((day) => this.weather.set(day.date, day));
 
-        this.selectedDate = this.days[0].date;
         this.setStatus(calendar?.days ? "" : "Termine sind gerade nicht erreichbar.");
     }
 
@@ -202,6 +233,23 @@ export default class extends Controller {
     }
 
     /* ---------- rendering ---------- */
+
+    /* the panel would otherwise sit empty between page load and the
+       first response — placeholders of the right size hold the layout
+       still and say "something is coming" without a spinner */
+    renderSkeleton() {
+        const bars = (...widths) => widths
+            .map((width) => `<span class="cal-bar" style="width: ${width}"></span>`)
+            .join("");
+
+        this.daysTarget.innerHTML = Array.from({ length: 7 }, () => `
+            <div class="cal-day cal-skeleton" aria-hidden="true">${bars("70%", "90%", "50%")}</div>
+        `).join("");
+
+        this.hoursTarget.innerHTML = Array.from({ length: SKELETON_HOURS }, () => `
+            <div class="cal-hour cal-skeleton" aria-hidden="true">${bars("55%", "85%", "65%", "95%")}</div>
+        `).join("");
+    }
 
     render() {
         this.renderDays();
@@ -516,5 +564,57 @@ export default class extends Controller {
 
         this.days = calendar.days;
         this.keepRail(() => this.render());
+    }
+
+    /* ---------- staying current ---------- */
+
+    /* a tab left open past midnight looks at a week that no longer
+       starts today — that needs the whole week again, not just fresh
+       counts for days that have moved */
+    async sync() {
+        if (this.syncing || document.visibilityState === "hidden") return;
+        if (!this.days.length) return;
+
+        this.syncing = true;
+
+        try {
+            if (this.days[0].date === iso(new Date())) {
+                await this.refresh();
+            } else {
+                await this.reload();
+            }
+        } finally {
+            this.syncing = false;
+        }
+    }
+
+    /* keeps the visitor on the day they were looking at, as long as it
+       is still one of the seven */
+    async reload() {
+        const previous = this.selectedDate;
+
+        this.weather = new Map();
+        this.mine = this.readStore();
+
+        await this.load();
+        if (!this.element.isConnected) return;
+
+        this.selectedDate = this.days.some((day) => day.date === previous)
+            ? previous
+            : this.days[0].date;
+
+        this.restoreSelection();
+        this.renderEquipment();
+        this.keepRail(() => this.render());
+    }
+
+    startPoll() {
+        if (this.poll) return;
+        this.poll = setInterval(() => this.sync(), POLL_INTERVAL);
+    }
+
+    stopPoll() {
+        clearInterval(this.poll);
+        this.poll = null;
     }
 }

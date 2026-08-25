@@ -39,7 +39,7 @@ function config(): array
 
     if ($config !== null) return $config;
 
-    $config = ['dsn' => '', 'user' => '', 'pass' => ''];
+    $config = ['dsn' => '', 'user' => '', 'pass' => '', 'cleanup_key' => ''];
 
     $candidates = array_merge(
         [__DIR__ . '/../../config.local.php'],
@@ -57,7 +57,12 @@ function config(): array
 
     /* die Umgebung schlägt die Datei — praktisch für Deployments,
        die Secrets injizieren statt sie abzulegen */
-    foreach (['dsn' => 'DB_DSN', 'user' => 'DB_USER', 'pass' => 'DB_PASS'] as $key => $name) {
+    foreach ([
+        'dsn' => 'DB_DSN',
+        'user' => 'DB_USER',
+        'pass' => 'DB_PASS',
+        'cleanup_key' => 'CLEANUP_KEY',
+    ] as $key => $name) {
         $value = getenv($name);
         if (is_string($value) && $value !== '') $config[$key] = $value;
     }
