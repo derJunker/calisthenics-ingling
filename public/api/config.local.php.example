@@ -1,0 +1,22 @@
+<?php
+/* Kopie hiervon als `config.local.php` hier daneben ablegen. Besser
+   noch mit einem Zufalls-Zusatz im Namen, den niemand raten kann —
+   `config.local.<zufall>.php` wird genauso gefunden:
+
+       cp config.local.php.example "config.local.$(openssl rand -hex 4).php"
+
+   Die Datei gehört nicht ins Git (steht in .gitignore) und besteht
+   absichtlich nur aus diesem `return` — direkt aufgerufen liefert sie
+   deshalb eine leere Antwort statt ihres Inhalts. */
+
+return [
+    /* MySQL / MariaDB */
+    'dsn' => 'mysql:host=localhost;dbname=calisthenics;charset=utf8mb4',
+    'user' => 'calisthenics',
+    'pass' => '',
+
+    /* SQLite tut es genauso. Die Datenbankdatei dann NICHT hier
+       ablegen — eine .sqlite im Webroot wird im Zweifel ausgeliefert:
+       'dsn' => 'sqlite:' . sys_get_temp_dir() . '/calisthenics.sqlite',
+       'user' => '', 'pass' => '', */
+];

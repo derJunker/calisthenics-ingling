@@ -1,2 +1,5 @@
 node_modules/
 /public/js/out.js
+
+/config.local.php
+/public/api/config.local*.php

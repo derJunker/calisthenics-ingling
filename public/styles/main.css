@@ -1,9 +1,13 @@
 @import "./layout.css";
 @import "typography.css";
 @import "./glass.css";
+@import "./header.css";
+@import "./footer.css";
 
 @import "./sections/teaser.css";
 @import "./sections/text.css";
+@import "./sections/directions.css";
+@import "./sections/calendar.css";
 
 :root {
     --max-content-width: 1512px;

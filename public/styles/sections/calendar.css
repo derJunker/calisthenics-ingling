@@ -1,0 +1,396 @@
+/* ---------------------------------------------------------------
+   Kalender
+
+   Three stacked rows inside one viewport: heading, the seven day
+   boxes, and the panel. The hour rail inside the panel scrolls
+   sideways, the chip list vertically if it has to — nothing here
+   ever makes the section taller than 100dvh, so the scroll pilot
+   keeps treating it as a single stop.
+
+   Radii follow the rest of the site: 4px on anything that is a
+   surface (boxes, chips, buttons), 2px on the small inline tags.
+   --------------------------------------------------------------- */
+
+.calendar {
+    height: 100dvh;
+    min-height: 100dvh;
+    overflow: hidden;
+
+    /* the heading row soaks up the spare space so the day strip and
+       the panel stay bottom-anchored like every other section; when
+       the panel needs more room the row gives it back, down to the
+       heading's own height, and the panel starts scrolling inside */
+    > .inner {
+        grid-template-rows: minmax(min-content, 1fr) auto minmax(0, auto);
+        align-content: stretch;
+        align-items: stretch;
+        justify-items: stretch;
+        gap: 1rem;
+        padding-top: 5rem;
+        padding-bottom: 3rem;
+        min-height: 0;
+    }
+
+    > .inner > h2 {
+        align-self: start;
+    }
+}
+
+/* ---------- shared box look ---------- */
+
+.cal-day,
+.cal-hour,
+.cal-chip {
+    appearance: none;
+    cursor: pointer;
+    color: var(--color-text);
+    font-family: "Monda", sans-serif;
+    border: 1px solid rgb(255 255 255 / .14);
+    border-radius: 4px;
+    background: rgb(255 255 255 / .05);
+    transition: background .15s ease, border-color .15s ease;
+
+    &:hover {
+        background: rgb(255 255 255 / .1);
+    }
+
+    &[aria-pressed="true"] {
+        border-color: rgb(255 255 255 / .75);
+        background: rgb(255 255 255 / .16);
+    }
+}
+
+/* ---------- day strip ---------- */
+
+/* all seven always fit — no horizontal scrolling, the boxes shrink */
+.cal-days {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: .5rem;
+}
+
+.cal-day {
+    display: grid;
+    justify-items: center;
+    gap: .15rem;
+    padding: .5rem .25rem;
+    /* the forecast, read as colour before anything else */
+    border-top: 3px solid var(--weather, rgb(255 255 255 / .3));
+    font-size: clamp(.62rem, 1.9dvw, .9rem);
+    line-height: 1.2;
+    text-align: center;
+}
+
+.cal-day-name {
+    font-size: 1.05em;
+}
+
+.cal-day-date {
+    opacity: .65;
+}
+
+/* how many people already announced themselves for that day */
+.cal-day-people {
+    min-width: 1.6em;
+    padding: .05em .35em;
+    border-radius: 2px;
+    background: rgb(255 255 255 / .08);
+    font-size: .8em;
+    opacity: .5;
+
+    &.is-busy {
+        background: rgb(255 255 255 / .2);
+        opacity: 1;
+    }
+}
+
+/* ---------- panel ---------- */
+
+/* the panel is only as tall as its content and sits at the bottom of
+   the section like every other block on the site. `minmax(0, auto)`
+   on the hour row is what lets it shrink past its content once the
+   panel hits the viewport cap — that is when the grid starts to
+   scroll instead of pushing the section past 100dvh. */
+.cal-panel {
+    display: grid;
+    grid-template-rows: auto minmax(0, auto) auto auto auto;
+    gap: .75rem;
+    padding: 1rem;
+    min-height: 0;
+}
+
+.cal-panel-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: .5rem;
+
+    h3 {
+        font-size: clamp(1rem, 3dvw, 1.35rem);
+    }
+}
+
+.cal-weather-line {
+    margin: 0;
+    font-size: .85rem;
+    opacity: .7;
+}
+
+/* ---------- hour rail ---------- */
+
+.cal-rail {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: stretch;
+    gap: .35rem;
+    min-width: 0;
+}
+
+/* the chevrons remove themselves when everything already fits */
+.cal-nav {
+    appearance: none;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    padding: 0;
+    border: 1px solid rgb(255 255 255 / .14);
+    border-radius: 4px;
+    background: rgb(255 255 255 / .05);
+    color: var(--color-text);
+    transition: background .15s ease, opacity .15s ease;
+
+    svg {
+        width: 1.1rem;
+        height: 1.1rem;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    &:hover:not(:disabled) {
+        background: rgb(255 255 255 / .12);
+    }
+
+    &:disabled {
+        cursor: default;
+        opacity: .25;
+    }
+}
+
+.cal-hours {
+    display: flex;
+    gap: .5rem;
+    min-width: 0;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+
+    /* the chevrons are the affordance here, the scrollbar would only
+       eat height inside the box */
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.cal-hour {
+    flex: 0 0 clamp(104px, 26dvw, 136px);
+    scroll-snap-align: start;
+
+    display: grid;
+    align-content: start;
+    gap: .3rem;
+    padding: .6rem .55rem .55rem;
+    /* the forecast for this hour, read as colour before anything else */
+    border-top: 3px solid var(--weather, rgb(255 255 255 / .3));
+    font-size: clamp(.72rem, 2dvw, .85rem);
+    text-align: left;
+}
+
+.cal-hour-time {
+    font-size: 1.15em;
+}
+
+.cal-hour-weather {
+    display: flex;
+    align-items: center;
+    gap: .3em;
+    min-height: 1.4em;
+    font-size: .85em;
+    opacity: .85;
+
+    svg {
+        width: 1.5em;
+        height: 1.5em;
+        flex: none;
+        fill: none;
+        stroke: var(--weather, currentColor);
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+}
+
+.cal-hour-temp {
+    margin-left: auto;
+    opacity: .7;
+}
+
+.cal-hour-people {
+    justify-self: start;
+    padding: .05em .5em;
+    border-radius: 2px;
+    background: rgb(255 255 255 / .08);
+    font-size: .8em;
+    opacity: .5;
+
+    &.is-busy {
+        background: rgb(255 255 255 / .2);
+        opacity: 1;
+    }
+}
+
+/* what the people in that hour are bringing - written out, never
+   abbreviated; anything past the second name folds into a "+n" */
+.cal-hour-gear {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .2em;
+    font-size: .72em;
+    line-height: 1.5;
+
+    i {
+        max-width: 100%;
+        overflow: hidden;
+        padding: 0 .4em;
+        border-radius: 2px;
+        background: rgb(255 255 255 / .12);
+        font-style: normal;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .cal-gear-none {
+        padding: 0;
+        background: none;
+        opacity: .4;
+    }
+}
+
+/* ---------- equipment multiselect ---------- */
+
+.cal-label {
+    margin: 0 0 .35rem;
+    font-family: "Monda", sans-serif;
+    font-size: .8rem;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    opacity: .6;
+}
+
+.cal-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+    max-height: 5.5rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.cal-chip {
+    padding: .3rem .7rem;
+    font-size: clamp(.72rem, 2dvw, .85rem);
+}
+
+/* ---------- actions ---------- */
+
+.cal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+}
+
+.cal-status {
+    flex: 1 1 8rem;
+    margin: 0;
+    font-size: .8rem;
+    opacity: .75;
+
+    &[data-tone="error"] {
+        color: #ff9a8a;
+        opacity: 1;
+    }
+
+    &[data-tone="ok"] {
+        opacity: 1;
+    }
+}
+
+.cal-btn {
+    appearance: none;
+    cursor: pointer;
+    padding: .5rem 1.1rem;
+    border: 1px solid var(--color-text);
+    border-radius: 4px;
+    background: var(--color-text);
+    color: var(--color-bg);
+    font-family: "Monda", sans-serif;
+    font-size: .9rem;
+    transition: opacity .15s ease;
+
+    &:disabled {
+        cursor: not-allowed;
+        opacity: .4;
+    }
+}
+
+.cal-btn-ghost {
+    background: transparent;
+    color: var(--color-text);
+    border-color: rgb(255 255 255 / .3);
+}
+
+.cal-privacy {
+    margin: 0;
+    font-size: .72rem;
+    line-height: 1.4;
+    opacity: .55;
+
+    a {
+        color: inherit;
+    }
+}
+
+/* ---------- small screens ---------- */
+
+@media (max-width: 768px) {
+    .calendar > .inner {
+        gap: .75rem;
+        padding-bottom: 1.5rem;
+    }
+
+    .cal-panel {
+        gap: .6rem;
+        padding: .85rem;
+    }
+
+
+    .cal-chips {
+        max-height: 4.5rem;
+    }
+
+    .cal-day {
+        padding: .45rem .15rem;
+    }
+
+    .cal-nav {
+        width: 1.75rem;
+    }
+}

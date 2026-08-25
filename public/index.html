@@ -1,14 +1,49 @@
-<!
+<!doctype html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Calisthenics Passau</title>
+    <title>Calisthenics Park Passau - Ingling | Training im Freien</title>
+    <meta name="description" content="Calisthenics Park Passau: der versteckte Calisthenics- und Fitness-Park bei Ingling hinter dem Staudamm. Klimmzugstangen, Barren und Ringe - Anfahrt, Training und gemeinsame Termine.">
+    <meta name="theme-color" content="#001e00">
+    <link rel="preload" href="./assets/Monda/Monda-VariableFont_wght.ttf" as="font" type="font/ttf" crossorigin>
+
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="de_DE">
+    <meta property="og:title" content="Calisthenics Park Passau - Ingling">
+    <meta property="og:description" content="Der versteckte Calisthenics- und Fitness-Park bei Ingling hinter dem Staudamm. Anfahrt, Equipment und gemeinsames Training.">
+    <meta property="og:image" content="./assets/teaser.jpeg">
+    <meta name="twitter:card" content="summary_large_image">
+
     <script src="./js/out.js" defer></script>
     <link rel="stylesheet" href="styles/main.css">
 
 </head>
 <body>
+
+<a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
+
+<header class="site-header" data-controller="nav">
+    <div class="header-shell">
+        <a class="brand" href="#start" data-action="nav#close">Calisthenics <em>Passau</em></a>
+
+        <nav class="nav" id="site-nav" aria-label="Hauptnavigation">
+            <ul>
+                <li><a href="#start" data-nav-target="link" data-action="nav#close">Start</a></li>
+                <li><a href="#park" data-nav-target="link" data-action="nav#close">Der Park</a></li>
+                <li><a href="#training" data-nav-target="link" data-action="nav#close">Training</a></li>
+                <li><a href="#equipment" data-nav-target="link" data-action="nav#close">Equipment</a></li>
+                <li><a href="#anfahrt" data-nav-target="link" data-action="nav#close">Anfahrt</a></li>
+                <li><a href="#kalender" data-nav-target="link" data-action="nav#close">Kalender</a></li>
+            </ul>
+        </nav>
+
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav"
+                aria-label="Menü öffnen" data-nav-target="toggle" data-action="nav#toggle">
+            <span class="nav-toggle-bars" aria-hidden="true"></span>
+        </button>
+    </div>
+</header>
 
 <div class="bg-cnt">
     <svg class="bg" viewBox="0 0 1600 1200" preserveAspectRatio="xMidYMid slice">
@@ -19,12 +54,14 @@
     </svg>
 </div>
 
-<section class="teaser scroll-section" data-animation="teaser">
+<main id="inhalt" tabindex="-1">
+
+<section id="start" class="teaser scroll-section" data-animation="teaser">
     <div class="inner">
         <h1>Funktional.<br>Gemeinsam.<br>Bei Passau.</h1>
     </div>
 </section>
-<section class="text-section text-right scroll-section" data-animation="text-reveal">
+<section id="park" class="text-section text-right scroll-section" data-animation="text-reveal">
     <div class="inner">
         <div class="txt glass">
             <h2>Der Park.</h2>
@@ -34,10 +71,147 @@
         </div>
     </div>
 </section>
-<section data-controller="calendar" class="scroll-section" data-animation="heading-wipe">
+<section id="training" class="text-section text-left scroll-section" data-animation="text-reveal">
     <div class="inner">
-        <h2>Kalender</h2>
+        <div class="txt glass">
+            <h2>Trainiere mit Anderen</h2>
+            <p>
+                Tausche dich mit anderen über Training aus, findet gemeinsame Termine und motiviert euch gegenseitig. Ob Anfänger oder Fortgeschritten - hier ist jeder willkommen.
+            </p>
+        </div>
     </div>
 </section>
+<section id="equipment" class="text-section text-right scroll-section" data-animation="text-reveal">
+    <div class="inner">
+        <div class="txt glass">
+            <h2>Kein Equipment?<br>Kein Problem!</h2>
+            <p>
+                Klimmzugstangen, Barren und Ringe stehen bereit - mehr braucht es nicht. Dein Körpergewicht ist das einzige Gerät, das du mitbringen musst.
+            </p>
+        </div>
+    </div>
+</section>
+<section id="anfahrt" class="directions scroll-section" data-animation="heading-wipe">
+    <div class="inner">
+        <h2>Komm Vorbei</h2>
+        <div class="directions-grid">
+            <div class="directions-steps glass">
+                <ol>
+                    <li>Von Passau aus der B12 Richtung Ingling folgen.</li>
+                    <li>Am Ortsende links Richtung Damm abbiegen.</li>
+                    <li>Dem Weg entlang des Staudamms bis zum Parkplatz folgen.</li>
+                    <li>Die letzten Meter zu Fuß - der Park liegt hinter dem Damm.</li>
+                </ol>
+                <div class="directions-actions">
+                    <a class="link-external" href="https://maps.google.com/?q=Ingling+Passau" target="_blank" rel="noopener">
+                        In Maps öffnen
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M8 16 16 8M9 8h7v7"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="directions-media">
+                <img src="./assets/teaser.jpeg" alt="Weg zum Calisthenics Park bei Ingling">
+            </div>
+        </div>
+    </div>
+</section>
+<section id="kalender" data-controller="calendar" class="calendar scroll-section" data-animation="heading-wipe">
+    <div class="inner">
+        <h2>Kalender</h2>
+
+        <!-- the seven day boxes; filled by calendar_controller.js -->
+        <div class="cal-days" role="group" aria-label="Nächste sieben Tage" data-calendar-target="days"></div>
+
+        <div class="cal-panel glass">
+            <div class="cal-panel-head">
+                <h3 data-calendar-target="dayLabel">Tag wählen</h3>
+                <p class="cal-weather-line" data-calendar-target="dayWeather"></p>
+            </div>
+
+            <!-- hourly boxes: weather, who is already there and with what.
+                 They are wider than the panel, so the rail scrolls sideways
+                 and the chevrons page through it. -->
+            <div class="cal-rail">
+                <button class="cal-nav" type="button" aria-label="Frühere Uhrzeiten"
+                        data-calendar-target="prev" data-direction="-1"
+                        data-action="calendar#page">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M15 5 8 12l7 7"/>
+                    </svg>
+                </button>
+
+                <div class="cal-hours" role="group" aria-label="Uhrzeiten - Mehrfachauswahl möglich"
+                     data-calendar-target="hours" data-action="scroll->calendar#railMoved"></div>
+
+                <button class="cal-nav" type="button" aria-label="Spätere Uhrzeiten"
+                        data-calendar-target="next" data-direction="1"
+                        data-action="calendar#page">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="m9 5 7 7-7 7"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="cal-gear">
+                <p class="cal-label" id="cal-gear-label">Ich bringe mit</p>
+                <div class="cal-chips" role="group" aria-labelledby="cal-gear-label"
+                     data-calendar-target="equipment"></div>
+            </div>
+
+            <div class="cal-actions">
+                <p class="cal-status" role="status" data-calendar-target="status"></p>
+                <button class="cal-btn cal-btn-ghost" type="button" hidden
+                        data-calendar-target="remove" data-action="calendar#remove">
+                    Eintrag löschen
+                </button>
+                <button class="cal-btn" type="button"
+                        data-calendar-target="submit" data-action="calendar#submit">
+                    Eintragen
+                </button>
+            </div>
+
+            <p class="cal-privacy">
+                Anonym - kein Name, keine E-Mail, keine IP. Gespeichert werden nur Tag, Uhrzeit
+                und Equipment; alle Einträge werden nach dem jeweiligen Tag automatisch gelöscht.
+                <a href="datenschutz.html">Datenschutz</a>
+            </p>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+    <div class="inner">
+        <p>&copy; 2026 Calisthenics Passau</p>
+        <nav aria-label="Rechtliches">
+            <ul>
+                <li><a href="impressum.html">Impressum</a></li>
+                <li><a href="datenschutz.html">Datenschutz</a></li>
+            </ul>
+        </nav>
+    </div>
+</footer>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ExerciseGym",
+  "name": "Calisthenics Park Passau - Ingling",
+  "description": "Frei zugänglicher Calisthenics- und Fitness-Park bei Ingling hinter dem Staudamm, nahe Passau. Klimmzugstangen, Barren und Ringe.",
+  "isAccessibleForFree": true,
+  "publicAccess": true,
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Passau-Ingling",
+    "addressRegion": "Bayern",
+    "addressCountry": "DE"
+  },
+  "image": "./assets/teaser.jpeg",
+  "sport": "Calisthenics"
+}
+</script>
 </body>
 </html>

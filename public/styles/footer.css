@@ -1,0 +1,46 @@
+.site-footer {
+    padding-block: 1.5rem;
+    /* same glass surface as .glass — see glass.css. Full bleed, so only
+       the top edge carries the highlight border */
+    border-top: 1px solid transparent;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    font-size: .875rem;
+
+    > .inner {
+        max-width: var(--max-content-width);
+        margin-inline: auto;
+        padding-inline: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    p {
+        margin: 0;
+        opacity: .7;
+    }
+
+    ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        gap: 1.5rem;
+    }
+
+    a {
+        color: var(--color-text);
+        text-decoration: none;
+        opacity: .7;
+        transition: opacity .2s ease;
+
+        &:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+    }
+}

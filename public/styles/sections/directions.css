@@ -1,0 +1,138 @@
+.directions {
+    > .inner {
+        align-content: end;
+        gap: 2rem;
+        justify-items: stretch;
+    }
+}
+
+.directions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: stretch;
+}
+
+.directions-steps {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 2rem;
+
+    ol {
+        margin: 0;
+        padding-left: 1.5rem;
+        display: grid;
+        gap: 1rem;
+        font-size: 1.125rem;
+        line-height: 1.5;
+    }
+
+    li::marker {
+        font-family: "Monda", sans-serif;
+        color: var(--color-text);
+        opacity: .6;
+    }
+}
+
+.directions-actions {
+    display: flex;
+    justify-content: end;
+}
+
+.directions-media {
+    border-radius: 4px;
+    overflow: hidden;
+
+    img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.link-external {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    color: var(--color-text);
+    font-family: "Monda", sans-serif;
+    text-decoration: none;
+    border-bottom: 1px solid rgb(255 255 255 / .3);
+    padding-bottom: .15rem;
+    transition: border-color .2s ease, opacity .2s ease;
+
+    svg {
+        width: 1em;
+        height: 1em;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        transition: transform .2s ease;
+    }
+
+    &:hover {
+        border-color: currentColor;
+
+        svg {
+            transform: translate(2px, -2px);
+        }
+    }
+}
+
+@media (max-width: 800px) {
+    /* the section is locked to one viewport; the step list takes the
+       leftover space and scrolls inside itself instead of pushing the
+       image (and the section) past 100dvh. */
+    .directions {
+        height: 100dvh;
+        min-height: 100dvh;
+        overflow: hidden;
+
+        > .inner {
+            grid-template-rows: auto minmax(0, 1fr);
+            align-items: stretch;
+            align-content: stretch;
+            justify-items: stretch;
+            gap: 1rem;
+            padding-top: 5rem;
+            padding-bottom: 1.5rem;
+            min-height: 0;
+        }
+    }
+
+    .directions-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(0, 1fr) auto;
+        gap: 1rem;
+        min-height: 0;
+    }
+
+    .directions-steps {
+        gap: 1rem;
+        padding: 1.25rem;
+        min-height: 0;
+        overflow: hidden;
+
+        ol {
+            gap: .75rem;
+            font-size: 1rem;
+            min-height: 0;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+        }
+    }
+
+    .directions-media {
+        height: clamp(120px, 22dvh, 220px);
+
+        img {
+            height: 100%;
+        }
+    }
+}

@@ -2,12 +2,36 @@
 
 }
 
+.text-left,
+.text-right {
+    > .inner .txt {
+        max-width: 50%;
+    }
+}
+
+/* flex here only places the block horizontally — the vertical anchor
+   stays the one every section shares: bottom of the viewport */
 .text-right {
     > .inner {
         display: flex;
         justify-content: end;
-        .txt {
-            max-width: 50%;
+        align-items: end;
+    }
+}
+
+.text-left {
+    > .inner {
+        display: flex;
+        justify-content: start;
+        align-items: end;
+    }
+}
+
+@media (max-width: 768px) {
+    .text-left,
+    .text-right {
+        > .inner .txt {
+            max-width: 100%;
         }
     }
 }

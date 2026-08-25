@@ -5,12 +5,37 @@ h1, h2, h3, h4, h5, h6 {
     margin: 0;
     font-weight: 500;
     font-family: "Monda", sans-serif;
+    /* long german compounds must never push the layout wider than the
+       viewport — break inside a word before that happens */
+    overflow-wrap: break-word;
 }
 
 h2 {
-    font-size: 2.5rem;
+    /* scales with the viewport, but never smaller than it stays readable
+       and never larger than the desktop size it was designed at */
+    font-size: clamp(1.75rem, 6dvw, 2.5rem);
+    line-height: 1.1;
 }
 
+h3 {
+    font-size: clamp(1.35rem, 4.5dvw, 1.75rem);
+    line-height: 1.15;
+}
+
+/* very small phones: no room to wait for a nice break point, so let the
+   browser hyphenate mid-word wherever it has to. SplitText wraps words in
+   their own boxes, so the same rules have to reach those too. */
+@media (max-width: 400px) {
+    h1, h2, h3, h4, h5, h6,
+    h1 .word, h2 .word, h3 .word,
+    h1 .line, h2 .line, h3 .line {
+        hyphens: auto;
+        -webkit-hyphens: auto;
+        hyphenate-limit-chars: 4 2 2;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+}
 
 @font-face {
     font-family: 'Monda';

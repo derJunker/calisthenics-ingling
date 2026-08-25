@@ -3,12 +3,16 @@
         display: grid;
         justify-items: start;
         align-items: end;
-        height: 100%;
         h1 {
-            font-size: clamp(6dvw, 10rem, 12dvw);
+            /* tracks the viewport width, floored so it stays legible on
+               the smallest phones and capped at the desktop size */
+            font-size: clamp(2.5rem, 12dvw, 10rem);
             text-transform: uppercase;
             line-height: 1;
             text-align: start;
+            /* the word masks clip to the line box — give the caps their
+               overshoot back so nothing shaves off mid-animation */
+            padding-block: .08em;
         }
     }
 }

@@ -1,0 +1,292 @@
+/* ---------------------------------------------------------------
+   Site header
+   Undocked: floating bar with breathing room around it.
+   Docked (scrolled): flush to the top edge, full bleed.
+
+   Only .site-header's padding animates. The shell keeps its own
+   padding constant and paints its surface on a ::before, so the
+   glass layer never re-resolves mid-transition.
+   --------------------------------------------------------------- */
+
+.site-header {
+    --hd-pad-block: 1.25rem;
+    --hd-pad-inline: 1.5rem;
+    --hd-radius: 6px;
+    --hd-ease: cubic-bezier(.16, 1, .3, 1);
+    --hd-speed: .55s;
+
+    position: fixed;
+    inset-inline: 0;
+    top: 0;
+    z-index: 100;
+    padding: var(--hd-pad-block) var(--hd-pad-inline);
+    transition: padding var(--hd-speed) var(--hd-ease);
+
+    /* only the shell itself should swallow pointer events */
+    pointer-events: none;
+
+    > * {
+        pointer-events: auto;
+    }
+}
+
+.site-header.is-docked {
+    --hd-pad-block: 0rem;
+    --hd-pad-inline: 0rem;
+    --hd-radius: 0px;
+}
+
+.header-shell {
+    position: relative;
+    isolation: isolate;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+
+    width: min(100%, var(--max-content-width));
+    margin-inline: auto;
+    padding: .625rem 1.25rem;
+}
+
+/* the glass surface, kept off the layout so padding never reflows it */
+.header-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+
+    /* same glass surface as .glass — see glass.css */
+    border: 1px solid transparent;
+    border-radius: var(--hd-radius);
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: var(--glass-shadow);
+
+    transition:
+        border-radius var(--hd-speed) var(--hd-ease),
+        border-width var(--hd-speed) var(--hd-ease);
+}
+
+/* docked: the bar is full bleed, so only the bottom edge keeps its
+   highlight — the other three would draw a line against the screen */
+.is-docked .header-shell::before {
+    border-top-width: 0;
+    border-inline-width: 0;
+}
+
+/* ---------- brand ---------- */
+
+.brand {
+    flex: 0 0 auto;
+
+    font-family: "Monda", sans-serif;
+    font-weight: 500;
+    font-size: 1rem;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--color-text);
+    white-space: nowrap;
+
+    em {
+        font-style: normal;
+        opacity: .6;
+    }
+}
+
+/* ---------- nav ---------- */
+
+.nav {
+    ul {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    a {
+        display: block;
+
+        font-family: "Monda", sans-serif;
+        font-weight: 500;
+        font-size: .9375rem;
+        color: var(--color-text);
+        opacity: .55;
+        white-space: nowrap;
+
+        text-decoration: none;
+        text-decoration-thickness: 1px;
+        text-underline-offset: .2rem;
+
+        transition: opacity .3s ease;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+
+    a.is-active {
+        opacity: 1;
+        text-decoration-line: underline;
+    }
+}
+
+/* ---------- hamburger ---------- */
+
+.nav-toggle {
+    display: none;
+    place-items: center;
+
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: 1px solid rgb(255 255 255 / .18);
+    border-radius: 4px;
+    background: rgb(255 255 255 / .07);
+    color: var(--color-text);
+    cursor: pointer;
+
+    transition: background .3s ease, border-color .3s ease;
+
+    &:hover {
+        background: rgb(255 255 255 / .14);
+        border-color: rgb(255 255 255 / .35);
+    }
+}
+
+.nav-toggle-bars {
+    position: relative;
+    display: block;
+    width: 1.125rem;
+    height: 1px;
+    background: currentColor;
+    transition: background .25s ease;
+
+    &::before,
+    &::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: currentColor;
+        transition: transform .4s var(--hd-ease);
+    }
+
+    &::before { transform: translateY(-5px); }
+    &::after  { transform: translateY(5px); }
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle-bars {
+    background: transparent;
+
+    &::before { transform: translateY(0) rotate(45deg); }
+    &::after  { transform: translateY(0) rotate(-45deg); }
+}
+
+/* ---------- mobile ---------- */
+
+@media (max-width: 860px) {
+    .site-header {
+        --hd-pad-block: .75rem;
+        --hd-pad-inline: .75rem;
+    }
+
+    .header-shell {
+        padding: .5rem .5rem .5rem 1rem;
+    }
+
+    .nav-toggle {
+        display: grid;
+    }
+
+    .nav {
+        position: absolute;
+        top: calc(100% + .5rem);
+        inset-inline: 0;
+
+        padding: .5rem;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        background: var(--glass-bg);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow: 0 16px 40px rgb(0 0 0 / .4);
+
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-.5rem);
+        transform-origin: top center;
+        transition:
+            opacity .3s var(--hd-ease),
+            transform .4s var(--hd-ease),
+            visibility 0s linear .4s;
+
+        ul {
+            flex-direction: column;
+            align-items: start;
+            gap: 0;
+        }
+
+        a {
+            padding: .75rem 1rem;
+            font-size: 1.0625rem;
+
+            opacity: 0;
+            transform: translateY(.375rem);
+            transition:
+                opacity .35s var(--hd-ease),
+                transform .35s var(--hd-ease);
+        }
+    }
+
+    .is-open .nav {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        transition-delay: 0s;
+
+        a {
+            opacity: .55;
+            transform: translateY(0);
+            transition-delay: calc(50ms + var(--i, 0) * 40ms);
+        }
+
+        a.is-active {
+            opacity: 1;
+        }
+    }
+}
+
+/* below this width the header is docked no matter where the page is
+   scrolled — a floating bar costs too much of an already short viewport,
+   and the open menu needs the full bleed to hang off */
+@media (max-width: 768px) {
+    .site-header {
+        --hd-pad-block: 0rem;
+        --hd-pad-inline: 0rem;
+        --hd-radius: 0px;
+    }
+
+    .header-shell::before {
+        border-top-width: 0;
+        border-inline-width: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-header,
+    .header-shell::before,
+    .nav,
+    .nav a,
+    .nav-toggle-bars,
+    .nav-toggle-bars::before,
+    .nav-toggle-bars::after {
+        transition-duration: .01ms !important;
+    }
+}
