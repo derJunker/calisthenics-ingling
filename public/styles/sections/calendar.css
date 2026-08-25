@@ -38,7 +38,9 @@
         align-self: end;
     }
 
-    /* everything below the heading shares one centred 768px column */
+    /* the heading shares the same centred 768px column as the boxes, so
+       its left edge lines up with the first day box */
+    > .inner > h2,
     > .inner > .cal-days,
     > .inner > .cal-panel {
         width: 100%;
@@ -87,6 +89,7 @@
     padding: .5rem .25rem;
     /* the forecast, read as colour before anything else */
     border-top: 3px solid var(--weather, rgb(255 255 255 / .3));
+    backdrop-filter: blur(4px);
     font-size: clamp(.62rem, 1.9dvw, .9rem);
     line-height: 1.2;
     text-align: center;
