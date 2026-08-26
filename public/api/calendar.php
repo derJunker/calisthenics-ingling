@@ -21,8 +21,11 @@
      Sie ist kein Login und wird nirgends geloggt;
    - gelesen wird ausschließlich aggregiert — Anzahl und Equipment
      pro Stunde, nie die Zeilen einzelner Besucher;
-   - vergangene Tage verschwinden von selbst (RETENTION_CHANCE),
-     damit der Bestand nie zu einer Bewegungshistorie anwächst.
+   - vergangene Tage verschwinden von selbst: der erste Request
+     nach Mitternacht räumt sie weg (sweep()), damit der Bestand
+     nie zu einer Bewegungshistorie anwächst. Wer die Löschung
+     auch ohne Besucher garantiert haben will, hängt `cleanup.php`
+     an einen Cron.
 
    Ohne erreichbare Datenbank liefert GET eine leere Woche und die
    Schreibwege einen sauberen Fehler — die Seite bleibt heil.
@@ -54,19 +57,18 @@ const SLOT_CAP = 30;
 const RATE_LIMIT = 20;
 const RATE_WINDOW = 600;
 
-/* Aufräumen der vergangenen Tage: im Schnitt bei jedem 20. Request.
-   Ein Cron darf dasselbe gerne zusätzlich tun. */
-const RETENTION_CHANCE = 20;
+/* Aufräumen der vergangenen Tage passiert im Request — siehe
+   sweep(). Ohne Besucher passiert nichts; wer das nicht will,
+   ruft `cleanup.php` per Cron auf. */
 
 /* Der Katalog. `label` erscheint überall, wo das Gerät auftaucht —
    kurz genug halten, dass es in einer Stunden-Box noch lesbar ist. */
 const EQUIPMENT = [
     ['id' => 'rings',       'label' => 'Ringe'],
-    ['id' => 'bands',       'label' => 'Bänder'],
     ['id' => 'parallettes', 'label' => 'Parallettes'],
-    ['id' => 'rope',        'label' => 'Springseil'],
+    ['id' => 'bands',       'label' => 'Gummibänder'],
     ['id' => 'chalk',       'label' => 'Chalk'],
-    ['id' => 'mat',         'label' => 'Matte'],
+    ['id' => 'weights',     'label' => 'Gewichte'],
 ];
 
 /* ---------- Hilfen ---------- */
@@ -127,14 +129,35 @@ function withinRateLimit(string $token): bool
     return !is_int($count) || $count <= RATE_LIMIT;
 }
 
-/** vergangene Tage wegräumen, gelegentlich und beiläufig */
+/**
+ * Vergangene Tage wegräumen — der Cron für alle, die keinen haben.
+ *
+ * Kein Zufall und kein Marker: die Datenbank ist selbst der Marker.
+ * Ein indizierter Blick (`idx_date`) sagt, ob überhaupt etwas
+ * Vergangenes daliegt. Ist nichts da — der Normalfall für den Rest
+ * des Tages —, kostet der Aufruf genau diesen einen Treffer und
+ * schreibt nichts. Liegt etwas da, wird es gelöscht. Damit räumt
+ * der erste Request nach Mitternacht verlässlich auf, statt wie
+ * vorher irgendwann per Würfel.
+ *
+ * Einmal pro Request genügt; `$done` hält POST + Folgeaufrufe raus.
+ * Fehler bleiben stumm: Aufräumen darf keine Antwort kaputt machen.
+ */
 function sweep(PDO $pdo): void
 {
-    if (random_int(1, RETENTION_CHANCE) !== 1) return;
+    static $done = false;
+    if ($done) return;
+    $done = true;
+
+    $today = (new DateTimeImmutable('today'))->format('Y-m-d');
 
     try {
-        $pdo->prepare('DELETE FROM calendar_entries WHERE date < ?')
-            ->execute([(new DateTimeImmutable('today'))->format('Y-m-d')]);
+        $probe = $pdo->prepare('SELECT 1 FROM calendar_entries WHERE date < ? LIMIT 1');
+        $probe->execute([$today]);
+
+        if (!$probe->fetchColumn()) return;
+
+        $pdo->prepare('DELETE FROM calendar_entries WHERE date < ?')->execute([$today]);
     } catch (Throwable) {
         error_log('calendar_entries: Aufräumen fehlgeschlagen');
     }
@@ -257,6 +280,8 @@ function announce(array $data): array
     $pdo = db();
     if (!$pdo) fail(503, 'Termine sind gerade nicht erreichbar.');
 
+    sweep($pdo);
+
     try {
         $pdo->beginTransaction();
 
@@ -313,6 +338,8 @@ function withdraw(array $data): array
     if (!withinRateLimit($token)) {
         fail(429, 'Zu viele Änderungen. Bitte kurz warten.');
     }
+
+    sweep($pdo);
 
     try {
         $statement = $pdo->prepare('DELETE FROM calendar_entries WHERE date = ? AND token = ?');

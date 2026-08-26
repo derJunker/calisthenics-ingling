@@ -16,8 +16,9 @@
     min-height: 100dvh;
     overflow: hidden;
 
-    /* the heading row soaks up the spare space so the day strip and
-       the panel stay bottom-anchored like every other section; when
+    /* the heading row soaks up the spare space (the heading itself sits
+       at its bottom edge) so the day strip and the panel stay
+       bottom-anchored like every other section; when
        the panel needs more room the row gives it back, down to the
        heading's own height, and the panel starts scrolling inside */
     > .inner {
@@ -31,8 +32,20 @@
         min-height: 0;
     }
 
+    /* the heading belongs to the day strip, so it sits at the bottom of
+       its row — directly above the boxes, not pinned to the top */
     > .inner > h2 {
-        align-self: start;
+        align-self: end;
+    }
+
+    /* the heading shares the same centred 768px column as the boxes, so
+       its left edge lines up with the first day box */
+    > .inner > h2,
+    > .inner > .cal-days,
+    > .inner > .cal-panel {
+        width: 100%;
+        max-width: 768px;
+        margin-inline: auto;
     }
 }
 
@@ -90,6 +103,7 @@
     scroll-snap-align: start;
     /* the forecast, read as colour before anything else */
     border-top: 3px solid var(--weather, rgb(255 255 255 / .3));
+    backdrop-filter: blur(4px);
     font-size: clamp(.62rem, 1.9dvw, .9rem);
     line-height: 1.2;
     text-align: center;
@@ -121,6 +135,37 @@
     &.is-busy {
         background: rgb(255 255 255 / .2);
         opacity: 1;
+    }
+}
+
+/* ---------- skeleton ---------- */
+
+/* stand-ins for the day and hour boxes until the first response
+   lands — same borders, same padding, so nothing shifts when the
+   real content replaces them */
+.cal-skeleton {
+    pointer-events: none;
+    cursor: default;
+}
+
+.cal-bar {
+    height: .7em;
+    border-radius: 2px;
+    background: rgb(255 255 255 / .12);
+    animation: cal-pulse 1.6s ease-in-out infinite;
+}
+
+.cal-hour .cal-bar:first-child {
+    height: .95em;
+}
+
+@keyframes cal-pulse {
+    50% { background: rgb(255 255 255 / .22); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cal-bar {
+        animation: none;
     }
 }
 

@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS weather_cache (
 -- ids; sie wiederholt sich pro Stunde, was das Aggregieren beim Lesen
 -- trivial macht.
 --
--- Vergangene Zeilen werden gelöscht (Sweep in calendar.php, siehe
--- RETENTION_CHANCE, plus optional ein Cron) — der Datenbestand soll
+-- Vergangene Zeilen werden gelöscht (sweep() in calendar.php beim
+-- ersten Request des Tages, auf Wunsch `cleanup.php` per Cron) — der Datenbestand soll
 -- nie zu einer Bewegungshistorie anwachsen.
 CREATE TABLE IF NOT EXISTS calendar_entries (
     id         INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
