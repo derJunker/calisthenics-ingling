@@ -47,7 +47,8 @@
 
 <div class="bg-cnt">
     <svg class="bg" viewBox="0 0 1600 1200" preserveAspectRatio="xMidYMid slice">
-        <image href="./assets/teaser.jpeg"/>
+        <image href="./assets/teaser.jpeg" x="0" y="0" width="100%" height="100%"
+               preserveAspectRatio="xMidYMid slice"/>
         <!--
             <image id="avatar" href="./assets/discord.png"/>
         -->
@@ -154,11 +155,17 @@
                 </button>
             </div>
 
-            <div class="cal-gear">
-                <p class="cal-label" id="cal-gear-label">Ich bringe mit</p>
+            <!-- on phones this collapses into a dropdown so the chips can
+                 never push the actions out of the section; on wider screens
+                 calendar_controller.js keeps it permanently open -->
+            <details class="cal-gear" open data-calendar-target="gear">
+                <summary class="cal-gear-summary">
+                    <span class="cal-label" id="cal-gear-label">Ich bringe mit</span>
+                    <span class="cal-gear-count" data-calendar-target="gearCount"></span>
+                </summary>
                 <div class="cal-chips" role="group" aria-labelledby="cal-gear-label"
                      data-calendar-target="equipment"></div>
-            </div>
+            </details>
 
             <div class="cal-actions">
                 <p class="cal-status" role="status" data-calendar-target="status"></p>
@@ -173,8 +180,7 @@
             </div>
 
             <p class="cal-privacy">
-                Anonym - kein Name, keine E-Mail, keine IP. Gespeichert werden nur Tag, Uhrzeit
-                und Equipment; alle Einträge werden nach dem jeweiligen Tag automatisch gelöscht.
+                Anonym - nur Tag, Uhrzeit und Equipment, danach automatisch gelöscht.
                 <a href="datenschutz.html">Datenschutz</a>
             </p>
         </div>
