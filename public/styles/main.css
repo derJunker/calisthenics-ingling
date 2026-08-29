@@ -15,28 +15,25 @@
     --color-bg: #001e00;
     --color-text: #fffef0;
     --color-primary: red;
+    --bg-dim: .67;
 }
 
 body {
     min-height: 100dvh;
     color: var(--color-text);
 }
-.bg,
-.bg-cnt::before {
+.bg {
     position: fixed;
     inset: 0;
-    content: "";
-}
-
-.bg-cnt::before {
-    background: rgb(0,0,0, .33);
-    z-index: -1;
-}
-
-.bg {
     z-index: -2;
     width: 100%;
     height: 100%;
+}
+
+/* the photo is dimmed on the image itself, not with an overlay above
+   the whole SVG — so the drawings on top keep their full contrast */
+.bg-stage > image {
+    filter: brightness(var(--bg-dim));
 }
 
 

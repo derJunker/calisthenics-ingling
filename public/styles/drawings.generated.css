@@ -13,9 +13,9 @@
 }
 
 .bg-cnt[data-section="start"] .bg-stage { transform: translate(800px, 600px) scale(1) translate(-800px, -600px); }
-.bg-cnt[data-section="park"] .bg-stage { transform: translate(800px, 600px) scale(1.3) translate(-660px, -560px); }
-.bg-cnt[data-section="training"] .bg-stage { transform: translate(800px, 600px) scale(1.3) translate(-900px, -620px); }
-.bg-cnt[data-section="equipment"] .bg-stage { transform: translate(800px, 600px) scale(1.35) translate(-700px, -520px); }
+.bg-cnt[data-section="park"] .bg-stage { transform: translate(800px, 600px) scale(1.1) translate(-727.2727272727273px, -560px); }
+.bg-cnt[data-section="training"] .bg-stage { transform: translate(800px, 600px) scale(1.1) translate(-872.7272727272727px, -620px); }
+.bg-cnt[data-section="equipment"] .bg-stage { transform: translate(800px, 600px) scale(1.1) translate(-727.2727272727273px, -545.4545454545454px); }
 .bg-cnt[data-section="anfahrt"] .bg-stage { transform: translate(800px, 600px) scale(1.3) translate(-950px, -690px); }
 .bg-cnt[data-section="kalender"] .bg-stage { transform: translate(800px, 600px) scale(1.15) translate(-800px, -600px); }
 
@@ -23,9 +23,9 @@
     .bg-stage { transform: translate(800px, 600px) scale(1) translate(-800px, -600px); }
 
     .bg-cnt[data-section="start"] .bg-stage { transform: translate(800px, 600px) scale(1) translate(-800px, -600px); }
-    .bg-cnt[data-section="park"] .bg-stage { transform: translate(800px, 600px) scale(1.45) translate(-660px, -540px); }
-    .bg-cnt[data-section="training"] .bg-stage { transform: translate(800px, 600px) scale(1.45) translate(-880px, -560px); }
-    .bg-cnt[data-section="equipment"] .bg-stage { transform: translate(800px, 600px) scale(1.5) translate(-700px, -520px); }
+    .bg-cnt[data-section="park"] .bg-stage { transform: translate(800px, 600px) scale(1.2) translate(-666.6666666666667px, -540px); }
+    .bg-cnt[data-section="training"] .bg-stage { transform: translate(800px, 600px) scale(1.2) translate(-880px, -560px); }
+    .bg-cnt[data-section="equipment"] .bg-stage { transform: translate(800px, 600px) scale(1.2) translate(-700px, -520px); }
     .bg-cnt[data-section="anfahrt"] .bg-stage { transform: translate(800px, 600px) scale(1.45) translate(-920px, -660px); }
     .bg-cnt[data-section="kalender"] .bg-stage { transform: translate(800px, 600px) scale(1.25) translate(-800px, -600px); }
 }
@@ -46,12 +46,15 @@
 
 .bg-cnt[data-section="start"] [data-dw-section="start"] { opacity: 1; }
 .bg-cnt[data-section="start"] [data-dw-section="start"] .dw-frames { animation-play-state: running; }
+.bg-cnt[data-section="equipment"] [data-dw-section="equipment"] { opacity: 1; }
+.bg-cnt[data-section="equipment"] [data-dw-section="equipment"] .dw-frames { animation-play-state: running; }
 
 /* ---------- Platzierung der einzelnen Zeichnungen ----------
    transform statt x/y/width/height: die CSS-Geometrie-Eigenschaften
    ignoriert Firefox auf einem verschachtelten <svg> noch. */
 
-[data-dw="start-0"] { transform-origin: 0 0; transform: translate(645px, 393px) scale(0.443787); }
+[data-dw="start-0"] { transform-origin: 0 0; transform: translate(645px, 355px) scale(0.665680); }
+[data-dw="equipment-0"] { transform-origin: 0 0; transform: translate(660px, 395px) scale(1.111111); }
 
 /* ---------- Laufbilder ---------- */
 
@@ -62,12 +65,24 @@
     animation: dw-pull-up 6.1667s steps(37) infinite;
 }
 
+.dw-frames--ring-rows {
+    /* schwarze Tinte auf dunklem Foto — invertiert wird sie weiß.
+       Für die Originalstriche "invert" in der JSON auf false setzen. */
+    filter: invert(1);
+    animation: dw-ring-rows 2.5833s steps(31) infinite;
+}
+
 /* hin bis zum letzten Frame und zurück — kein Sprung am Schleifenende.
    steps() gilt je Keyframe-Abschnitt, jede Hälfte läuft also 37 Frames. */
 @keyframes dw-pull-up {
     from { transform: translateX(0); }
     50%  { transform: translateX(-9102px); }
     to   { transform: translateX(0); }
+}
+
+@keyframes dw-ring-rows {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-8556px); }
 }
 
 /* Ohne Bewegung: der erste Frame bleibt stehen, der Ausschnitt springt

@@ -18,7 +18,7 @@
     flex-direction: column;
     justify-content: space-between;
     gap: 2rem;
-    padding: 2rem;
+    padding: 3rem;
 
     ol {
         margin: 0;
@@ -31,14 +31,28 @@
 
     li::marker {
         font-family: "Monda", sans-serif;
+        font-weight: 500;
         color: var(--color-text);
         opacity: .6;
     }
 }
 
+/* the two ways here — bus and on foot — sit side by side and each
+   counts its own steps */
+.directions-options {
+    display: grid;
+    gap: 2rem;
+}
+
+.directions-option {
+    h3 {
+        margin: 0 0 .75rem;
+    }
+}
+
 .directions-actions {
     display: flex;
-    justify-content: end;
+    justify-content: start;
 }
 
 .directions-media {
@@ -114,7 +128,7 @@
 
     .directions-steps {
         gap: 1rem;
-        padding: 1.25rem;
+        padding: 1.875rem;
         min-height: 0;
         overflow: hidden;
 

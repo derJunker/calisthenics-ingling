@@ -180,7 +180,7 @@
     display: grid;
     grid-template-rows: auto minmax(0, auto) auto auto auto;
     gap: .75rem;
-    padding: 1rem;
+    padding: 1.5rem;
     min-height: 0;
 }
 
@@ -477,7 +477,7 @@
 
     .cal-panel {
         gap: .6rem;
-        padding: .85rem;
+        padding: 1.275rem;
     }
 
     .cal-day {

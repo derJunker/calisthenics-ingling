@@ -1,4 +1,5 @@
 html {
+    font-family: "Monda", sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -20,6 +21,10 @@ h2 {
 h3 {
     font-size: clamp(1.35rem, 4.5dvw, 1.75rem);
     line-height: 1.15;
+}
+
+p {
+    font-size: clamp(1rem, 4dvw, 1.5rem);
 }
 
 /* very small phones: no room to wait for a nice break point, so let the

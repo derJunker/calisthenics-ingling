@@ -35,3 +35,35 @@
         }
     }
 }
+
+.link-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    margin-top: 1rem;
+    color: var(--color-text);
+    font-family: "Monda", sans-serif;
+    text-decoration: none;
+    border-bottom: 1px solid rgb(255 255 255 / .3);
+    padding-bottom: .15rem;
+    transition: border-color .2s ease;
+
+    svg {
+        width: 1em;
+        height: 1em;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        transition: transform .2s ease;
+    }
+
+    &:hover {
+        border-color: currentColor;
+
+        svg {
+            transform: translateX(3px);
+        }
+    }
+}
