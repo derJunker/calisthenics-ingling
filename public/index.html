@@ -45,9 +45,6 @@
     </div>
 </header>
 
-<!-- drawings:begin -->
-<!-- GENERIERT von tools/build-drawings.mjs — nicht von Hand ändern.
-     Quelle: src/drawings.json, danach `npm run build:drawings`. -->
 <div class="bg-cnt" data-section="start" data-controller="background">
     <svg class="bg" viewBox="0 0 1600 1200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
         <g class="bg-stage">
@@ -165,11 +162,17 @@
                 </button>
             </div>
 
-            <div class="cal-gear">
-                <p class="cal-label" id="cal-gear-label">Ich bringe mit</p>
+            <!-- on phones this collapses into a dropdown so the chips can
+                 never push the actions out of the section; on wider screens
+                 calendar_controller.js keeps it permanently open -->
+            <details class="cal-gear" open data-calendar-target="gear">
+                <summary class="cal-gear-summary">
+                    <span class="cal-label" id="cal-gear-label">Ich bringe mit</span>
+                    <span class="cal-gear-count" data-calendar-target="gearCount"></span>
+                </summary>
                 <div class="cal-chips" role="group" aria-labelledby="cal-gear-label"
                      data-calendar-target="equipment"></div>
-            </div>
+            </details>
 
             <div class="cal-actions">
                 <p class="cal-status" role="status" data-calendar-target="status"></p>

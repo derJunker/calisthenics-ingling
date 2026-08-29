@@ -80,9 +80,13 @@ const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)"
 
 export default class extends Controller {
     static targets = [
-        "days", "hours", "prev", "next", "equipment",
+        "days", "hours", "prev", "next", "equipment", "gear", "gearCount",
         "dayLabel", "dayWeather", "status", "submit", "remove",
     ]
+
+    /* below this the equipment list is a dropdown, above it the chips
+       are simply always there — keep it in sync with calendar.css */
+    static DROPDOWN = "(max-width: 768px)"
 
     async connect() {
         this.hourRange = FALLBACK_HOURS;
@@ -102,6 +106,13 @@ export default class extends Controller {
 
         this.onResize = () => this.updateNav();
         window.addEventListener("resize", this.onResize);
+
+        /* the <details> is only a dropdown on phones; on wider screens it
+           stays open, which is what makes the summary a plain label */
+        this.gearMedia = window.matchMedia(this.constructor.DROPDOWN);
+        this.onGearMedia = () => this.syncGear();
+        this.gearMedia.addEventListener("change", this.onGearMedia);
+        this.syncGear();
 
         /* coming back to the tab is the moment stale counts are most
            likely and most visible */
@@ -132,9 +143,15 @@ export default class extends Controller {
 
     disconnect() {
         window.removeEventListener("resize", this.onResize);
+        this.gearMedia?.removeEventListener("change", this.onGearMedia);
         document.removeEventListener("visibilitychange", this.onVisibility);
         this.observer?.disconnect();
         this.stopPoll();
+    }
+
+    syncGear() {
+        if (!this.hasGearTarget) return;
+        this.gearTarget.open = !this.gearMedia.matches;
     }
 
     /* ---------- data ---------- */
@@ -380,6 +397,22 @@ export default class extends Controller {
         this.equipmentTarget.querySelectorAll("[data-equipment]").forEach((chip) => {
             chip.setAttribute("aria-pressed", String(this.selectedEquipment.has(chip.dataset.equipment)));
         });
+
+        this.renderGearCount();
+    }
+
+    /* what the closed dropdown says — the names themselves while they
+       still fit, a count once there are more than two */
+    renderGearCount() {
+        if (!this.hasGearCountTarget) return;
+
+        const chosen = [...this.selectedEquipment]
+            .map((id) => this.label(id)?.label)
+            .filter(Boolean);
+
+        this.gearCountTarget.textContent = chosen.length > GEAR_SHOWN
+            ? `${chosen.length} gewählt`
+            : chosen.join(", ") || "nichts";
     }
 
     renderActions() {
@@ -485,6 +518,7 @@ export default class extends Controller {
             : this.selectedEquipment.add(id);
 
         event.currentTarget.setAttribute("aria-pressed", String(this.selectedEquipment.has(id)));
+        this.renderGearCount();
     }
 
     /* ---------- submit / delete ---------- */
