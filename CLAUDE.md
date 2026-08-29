@@ -18,9 +18,71 @@ PHP-Backend für Terminkalender und Wetter. Gehostet bei Hostinger (Apache).
 ## Befehle
 
 ```
-npm run build   # esbuild src/js/main.js -> public/js/out.js
-npm run dev     # build + php -S localhost:8000 -t public
+npm run build            # Zeichnungen + esbuild src/js/main.js -> public/js/out.js
+npm run build:drawings   # nur src/drawings.json -> CSS und index.html
+npm run build:js         # nur das JS-Bundle
+npm run dev              # build + php -S localhost:8000 -t public
 ```
+
+## Zeichnungen auf dem Hintergrund
+
+Die handgezeichneten Figuren sind Sprite-Sheets (ein WebP, alle Frames
+nebeneinander), die im Hintergrund-SVG laufen. Gesteuert wird alles über
+**`src/drawings.json`** — das ist die einzige Datei, die von Hand
+angefasst wird:
+
+- `sprites` — je Zeichnung Dateiname, Frame-Anzahl, Tempo, Laufrichtung
+  (`pingpong` läuft hin und zurück, `loop` nur vorwärts) und `invert`
+  für weiße statt schwarzer Striche.
+- `sections` — je Abschnitt (der `id` im HTML) der Bildausschnitt und
+  welche Zeichnungen dort laufen.
+
+```
+npm run build:drawings   # JSON -> drawings.generated.css + Block in index.html
+npm run build            # dasselbe, danach das JS-Bundle
+```
+
+`public/styles/drawings.generated.css` und der Bereich zwischen
+`<!-- drawings:begin -->` und `<!-- drawings:end -->` in `index.html`
+sind **generiert** — Änderungen dort überschreibt der nächste Lauf.
+
+### Koordinaten
+
+Alle Zahlen sind Einheiten der viewBox des Hintergrund-SVG, `0 0 1600
+1200` — dieselbe Fläche wie `teaser.jpeg`. Eine Zeichnung bei `x: 645,
+y: 393` sitzt also immer an derselben Stelle des Fotos, egal wie groß
+das Fenster ist. `height` ist die Höhe der Figur in denselben
+Einheiten, die Breite ergibt sich aus dem Seitenverhältnis des Sheets.
+
+### Bildausschnitt
+
+Foto und Zeichnungen hängen gemeinsam in `.bg-stage`, verschoben wird
+also beides zusammen. `focus` holt den Punkt `x|y` in die Bildmitte und
+zoomt um `zoom`; `focusMobile` gilt bis `mobileBreakpoint` (768px), wo
+das Foto seitlich stark beschnitten wird.
+
+Verschieben geht nur so weit, wie der Zoom Luft lässt: das Foto füllt
+den Bildschirm per `slice`, also füllt immer mindestens eine Achse
+genau aus, und bei `zoom: 1` ist die Mitte die einzig sichere Lage. Der
+Build klemmt zu weite Werte ab und sagt beim Laufen, welcher Bereich
+erlaubt gewesen wäre. Wer schieben will, muss also zoomen.
+
+Welcher Abschnitt gerade gilt, schreibt `background_controller.js` als
+`data-section` auf `.bg-cnt`; die CSS hängt komplett an diesem einen
+Attribut. Ohne JavaScript bleibt der erste Abschnitt stehen.
+
+### Eine neue Zeichnung
+
+Die Sheets entstehen in `~/Dokumente/cali-pdfs` aus den
+reMarkable-Dateien:
+
+```
+python extract_drawings.py --doc <ordner> --out <name>_svg
+python make_sprite.py <name> --src <name>_svg --install
+```
+
+`--install` legt das WebP in `public/assets/`; `make_sprite.py` druckt
+zum Schluss den fertigen JSON-Schnipsel für `src/drawings.json`.
 
 ## Routing
 

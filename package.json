@@ -4,7 +4,9 @@
     "gsap": "^3.15.0"
   },
   "scripts": {
-    "build": "esbuild ./src/js/main.js --bundle --outfile=./public/js/out.js",
+    "build:drawings": "node tools/build-drawings.mjs",
+    "build:js": "esbuild ./src/js/main.js --bundle --outfile=./public/js/out.js",
+    "build": "npm run build:drawings && npm run build:js",
     "dev": "npm run build && php -S localhost:8000 -t public"
   },
   "devDependencies": {

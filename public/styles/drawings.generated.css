@@ -1,0 +1,79 @@
+/* GENERIERT von tools/build-drawings.mjs — nicht von Hand ändern.
+   Quelle: src/drawings.json, danach `npm run build:drawings`. */
+
+/* ---------- Bildausschnitt pro Abschnitt ----------
+   .bg-stage trägt Foto und Zeichnungen gemeinsam, beide bleiben also
+   in jedem Ausschnitt zueinander an Ort und Stelle. Ohne JavaScript
+   fehlt data-section nie: das Markup liefert den ersten Abschnitt mit. */
+
+.bg-stage {
+    transform-origin: 0 0;
+    transform: translate(800px, 600px) scale(1) translate(-800px, -600px);
+    transition: transform 1.1s cubic-bezier(.4, 0, .2, 1);
+}
+
+.bg-cnt[data-section="start"] .bg-stage { transform: translate(800px, 600px) scale(1) translate(-800px, -600px); }
+.bg-cnt[data-section="park"] .bg-stage { transform: translate(800px, 600px) scale(1.3) translate(-660px, -560px); }
+.bg-cnt[data-section="training"] .bg-stage { transform: translate(800px, 600px) scale(1.3) translate(-900px, -620px); }
+.bg-cnt[data-section="equipment"] .bg-stage { transform: translate(800px, 600px) scale(1.35) translate(-700px, -520px); }
+.bg-cnt[data-section="anfahrt"] .bg-stage { transform: translate(800px, 600px) scale(1.3) translate(-950px, -690px); }
+.bg-cnt[data-section="kalender"] .bg-stage { transform: translate(800px, 600px) scale(1.15) translate(-800px, -600px); }
+
+@media (max-width: 768px) {
+    .bg-stage { transform: translate(800px, 600px) scale(1) translate(-800px, -600px); }
+
+    .bg-cnt[data-section="start"] .bg-stage { transform: translate(800px, 600px) scale(1) translate(-800px, -600px); }
+    .bg-cnt[data-section="park"] .bg-stage { transform: translate(800px, 600px) scale(1.45) translate(-660px, -540px); }
+    .bg-cnt[data-section="training"] .bg-stage { transform: translate(800px, 600px) scale(1.45) translate(-880px, -560px); }
+    .bg-cnt[data-section="equipment"] .bg-stage { transform: translate(800px, 600px) scale(1.5) translate(-700px, -520px); }
+    .bg-cnt[data-section="anfahrt"] .bg-stage { transform: translate(800px, 600px) scale(1.45) translate(-920px, -660px); }
+    .bg-cnt[data-section="kalender"] .bg-stage { transform: translate(800px, 600px) scale(1.25) translate(-800px, -600px); }
+}
+
+/* ---------- Zeichnungen ----------
+   Sichtbar ist nur, was zum aktuellen Abschnitt gehört; alles andere
+   steht still, statt unsichtbar weiterzulaufen. */
+
+.dw {
+    opacity: 0;
+    transition: opacity .6s ease;
+    pointer-events: none;
+}
+
+.dw-frames {
+    animation-play-state: paused;
+}
+
+.bg-cnt[data-section="start"] [data-dw-section="start"] { opacity: 1; }
+.bg-cnt[data-section="start"] [data-dw-section="start"] .dw-frames { animation-play-state: running; }
+
+/* ---------- Platzierung der einzelnen Zeichnungen ----------
+   transform statt x/y/width/height: die CSS-Geometrie-Eigenschaften
+   ignoriert Firefox auf einem verschachtelten <svg> noch. */
+
+[data-dw="start-0"] { transform-origin: 0 0; transform: translate(645px, 393px) scale(0.443787); }
+
+/* ---------- Laufbilder ---------- */
+
+.dw-frames--pull-up {
+    /* schwarze Tinte auf dunklem Foto — invertiert wird sie weiß.
+       Für die Originalstriche "invert" in der JSON auf false setzen. */
+    filter: invert(1);
+    animation: dw-pull-up 6.1667s steps(37) infinite;
+}
+
+/* hin bis zum letzten Frame und zurück — kein Sprung am Schleifenende.
+   steps() gilt je Keyframe-Abschnitt, jede Hälfte läuft also 37 Frames. */
+@keyframes dw-pull-up {
+    from { transform: translateX(0); }
+    50%  { transform: translateX(-9102px); }
+    to   { transform: translateX(0); }
+}
+
+/* Ohne Bewegung: der erste Frame bleibt stehen, der Ausschnitt springt
+   ohne Überblendung. */
+@media (prefers-reduced-motion: reduce) {
+    .dw-frames { animation: none; }
+    .bg-stage { transition: none; }
+    .dw { transition: none; }
+}

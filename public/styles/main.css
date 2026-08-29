@@ -3,6 +3,7 @@
 @import "./glass.css";
 @import "./header.css";
 @import "./footer.css";
+@import "./drawings.generated.css";
 
 @import "./sections/teaser.css";
 @import "./sections/text.css";
