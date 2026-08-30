@@ -1,5 +1,6 @@
 import { gsap } from "gsap";
 
+import { routeMap } from "./route-map";
 import { textEffects } from "./text-effects";
 
 /* Two intros, both from text-effects.js so tuning them there tunes
@@ -50,8 +51,14 @@ function headingWipe(section) {
     }, 0.4);
 }
 
+/* wie heading-wipe, danach zeichnet sich der Weg auf der Karte */
+function directions(section) {
+    return headingWipe(section).add(routeMap(section).paused(false), 0.6);
+}
+
 export const sectionAnimations = {
     teaser,
     "text-reveal": textReveal,
     "heading-wipe": headingWipe,
+    directions,
 };

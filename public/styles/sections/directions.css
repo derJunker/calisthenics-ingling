@@ -20,6 +20,19 @@
     gap: 2rem;
     padding: 3rem;
 
+    .info {
+        * {
+            font-size: 1rem;
+        }
+        .link-inline {
+            margin-top: 2px;
+        }
+        margin-top: .5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
     ol {
         margin: 0;
         padding-left: 1.5rem;
@@ -55,15 +68,26 @@
     justify-content: start;
 }
 
+/* Karte und eingezeichneter Weg liegen exakt übereinander: beide
+   messen 563x542, das Bild wird per `contain` eingepasst und das SVG
+   passt sich mit seinem voreingestellten `xMidYMid meet` genauso ein —
+   die Route sitzt damit in jeder Kastengröße auf der Karte. */
 .directions-media {
+    position: relative;
     border-radius: 4px;
     overflow: hidden;
 
-    img {
+    img,
+    .route-map {
         display: block;
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
+    }
+
+    .route-map {
+        position: absolute;
+        inset: 0;
     }
 }
 
@@ -119,9 +143,13 @@
         }
     }
 
+    /* Die Schrittliste bekommt genau die Höhe, die ihr Inhalt braucht
+       (kein Dehnen, also auch keine Lücke vor dem Maps-Link), die
+       Karte den Rest — mindestens aber 120px, dann staucht sich eher
+       die Liste und scrollt in sich. */
     .directions-grid {
         grid-template-columns: 1fr;
-        grid-template-rows: minmax(0, 1fr) auto;
+        grid-template-rows: minmax(0, auto) minmax(120px, 1fr);
         gap: 1rem;
         min-height: 0;
     }
@@ -142,8 +170,15 @@
         }
     }
 
+    /* die Karte ist quadratisch: sie wächst bis zur vollen Breite,
+       aber nie über den Platz hinaus, den die Liste übrig lässt —
+       darüber deckelt `max-height`, und `contain` lässt sie dann
+       kleiner werden statt sie zu verzerren. */
     .directions-media {
-        height: clamp(120px, 22dvh, 220px);
+        aspect-ratio: 563 / 542;
+        height: auto;
+        max-height: 100%;
+        align-self: center;
 
         img {
             height: 100%;
