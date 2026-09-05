@@ -14,6 +14,9 @@
    - inner scroll containers keep their own scrolling;
    - prefers-reduced-motion turns the whole thing off — plain native
      scrolling, no hijack, no animation;
+   - so does anything narrower than the mobile breakpoint: on a phone
+     the sections are the ones that outgrow the viewport, the URL bar
+     keeps resizing it, and a swipe belongs to the finger;
    - keyboard, focus and hash navigation move the same way as a
      gesture, and the target section receives focus so screen reader
      and Tab order follow the viewport.
@@ -42,6 +45,8 @@ const TYPING = "input, textarea, select, [contenteditable]:not([contenteditable=
 const PRESSABLE = "a[href], button, summary, [role=button], [role=link]";
 
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+/* same 768px line as the drawings' mobileBreakpoint and the nav */
+const handheld = window.matchMedia("(max-width: 768px)");
 
 class ScrollPilot {
     constructor() {
@@ -341,7 +346,7 @@ class ScrollPilot {
 let pilot = null;
 
 function sync() {
-    if (reducedMotion.matches) {
+    if (reducedMotion.matches || handheld.matches) {
         pilot?.destroy();
         pilot = null;
         return;
@@ -351,3 +356,4 @@ function sync() {
 
 sync();
 reducedMotion.addEventListener("change", sync);
+handheld.addEventListener("change", sync);

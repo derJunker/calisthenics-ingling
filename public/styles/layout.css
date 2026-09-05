@@ -30,8 +30,10 @@ section {
    Section-to-section movement is driven by section-scroll-pilot.js,
    which tweens the real scroll position and swallows the inertia.
 
-   Everything below is the no-JS / reduced-motion baseline: plain
-   native scrolling that still lands anchors below the fixed header.
+   Everything below is the baseline the pilot hands back to whenever
+   it is off — no JS, reduced motion, or a viewport under 768px:
+   plain native scrolling that still lands anchors below the fixed
+   header.
    --------------------------------------------------------------- */
 
 html {

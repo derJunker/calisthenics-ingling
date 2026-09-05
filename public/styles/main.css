@@ -30,9 +30,13 @@ body {
     height: 100%;
 }
 
-/* the photo is dimmed on the image itself, not with an overlay above
-   the whole SVG — so the drawings on top keep their full contrast */
-.bg-stage > image {
+/* gedimmt wird auf den Bildern selbst, nicht mit einer Fläche über dem
+   ganzen SVG — sonst läge der Schleier auch über allem, was sonst noch
+   in die Stage kommt. Die Zeichnungen werden über ihre Gruppe gedimmt,
+   also nach dem invert(1) der Laufbilder: aus weißer Tinte wird graue,
+   nicht aus schwarzer eine noch schwärzere. */
+.bg-stage > image,
+.bg-stage .dw {
     filter: brightness(var(--bg-dim));
 }
 

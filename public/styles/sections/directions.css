@@ -91,6 +91,15 @@
     }
 }
 
+/* Die Beschriftungen gehören zur Seite, nicht zur Zeichnung — die
+   Schriftart kommt darum von hier und nicht aus dem Zeichenprogramm.
+   Größe und Farbe bleiben am jeweiligen <text>, die sind Teil der
+   Karte (roter Zielpunkt, kleinere Zwischenstationen). */
+.route-map text {
+    font-family: "Monda", sans-serif;
+    font-weight: 700;
+}
+
 .link-external {
     display: inline-flex;
     align-items: center;
@@ -122,66 +131,37 @@
     }
 }
 
-@media (max-width: 800px) {
-    /* the section is locked to one viewport; the step list takes the
-       leftover space and scrolls inside itself instead of pushing the
-       image (and the section) past 100dvh. */
-    .directions {
-        height: 100dvh;
-        min-height: 100dvh;
-        overflow: hidden;
-
-        > .inner {
-            grid-template-rows: auto minmax(0, 1fr);
-            align-items: stretch;
-            align-content: stretch;
-            justify-items: stretch;
-            gap: 1rem;
-            padding-top: 5rem;
-            padding-bottom: 1.5rem;
-            min-height: 0;
-        }
+/* Unterhalb dieser Breite fährt der Scroll-Pilot nicht mehr (dieselbe
+   Grenze wie in section-scroll-pilot.js), der Abschnitt muss also nicht
+   mehr in einen Bildschirm passen: erst die Karte in voller Breite,
+   darunter die Schritte in voller Länge. Nichts wird gestaucht, nichts
+   scrollt in sich, der Abschnitt darf einfach länger werden. */
+@media (max-width: 768px) {
+    .directions > .inner {
+        gap: 1rem;
+        padding-top: 5rem;
+        padding-bottom: 1.5rem;
     }
 
-    /* Die Schrittliste bekommt genau die Höhe, die ihr Inhalt braucht
-       (kein Dehnen, also auch keine Lücke vor dem Maps-Link), die
-       Karte den Rest — mindestens aber 120px, dann staucht sich eher
-       die Liste und scrollt in sich. */
     .directions-grid {
         grid-template-columns: 1fr;
-        grid-template-rows: minmax(0, auto) minmax(120px, 1fr);
         gap: 1rem;
-        min-height: 0;
     }
 
     .directions-steps {
         gap: 1rem;
         padding: 1.875rem;
-        min-height: 0;
-        overflow: hidden;
 
         ol {
             gap: .75rem;
             font-size: 1rem;
-            min-height: 0;
-            overflow-y: auto;
-            overscroll-behavior: contain;
-            -webkit-overflow-scrolling: touch;
         }
     }
 
-    /* die Karte ist quadratisch: sie wächst bis zur vollen Breite,
-       aber nie über den Platz hinaus, den die Liste übrig lässt —
-       darüber deckelt `max-height`, und `contain` lässt sie dann
-       kleiner werden statt sie zu verzerren. */
+    /* die Karte steht über dem Kasten, nicht darauf — und behält ihre
+       eigenen Maße, statt sich in den Rest zu quetschen */
     .directions-media {
+        order: -1;
         aspect-ratio: 563 / 542;
-        height: auto;
-        max-height: 100%;
-        align-self: center;
-
-        img {
-            height: 100%;
-        }
     }
 }

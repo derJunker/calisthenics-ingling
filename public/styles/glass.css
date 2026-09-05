@@ -34,7 +34,7 @@
     position: relative;
     padding: 1.5rem;
     border-radius: 4px;
-    color: white;
+    color: var(--color-text);
 
     border: 1px solid transparent;
     background: var(--glass-bg);
